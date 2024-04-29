@@ -276,12 +276,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:project/LoginPage.dart';
+import 'UserState.dart';
+import 'package:provider/provider.dart';
+import 'PhoneAuthScreen.dart';
 import 'VerifyMobile.dart';
-import 'DashboardPage.dart';
-import 'LoginPage.dart';
+
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({Key? key, required String title});
+  const SignupPage({Key? key});
 
   @override
   _SignupPageState createState() => _SignupPageState();
@@ -318,18 +321,21 @@ class _SignupPageState extends State<SignupPage> {
         return;
       }
 
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text);
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+      String userId = userCredential.user!.uid;
 
-      String userId = userCredential.user!.uid; // Get the user ID
+      // Update userId using UserState
+      Provider.of<UserState>(context, listen: false).setUserId(userId);
 
-      // Store user data in Firebase Realtime Database
       DatabaseReference database = FirebaseDatabase.instance.ref();
-      await database.child('users').child(userId).set({
+      await database.child('users').child(userCredential.user!.uid).set({
         'username': usernameController.text.trim(),
         'email': emailController.text.trim(),
+        'MY Earnings': 0.0, // Set My Earnings to zero
+        'My Rewards': 0.0,  // Set My Rewards to zero
       });
 
       showToast('Signup Successful');
@@ -351,6 +357,7 @@ class _SignupPageState extends State<SignupPage> {
       showToast('Signup failed');
     }
   }
+
 
 
   void showToast(String message) {
@@ -380,6 +387,10 @@ class _SignupPageState extends State<SignupPage> {
         // Sign in the user with the credentials
         final UserCredential userCredential =
         await _auth.signInWithCredential(credential);
+        String userId = userCredential.user!.uid;
+
+        // Update userId using UserState
+        Provider.of<UserState>(context, listen: false).setUserId(userId);
 
         if (userCredential.user != null) {
           // Store user data in Firebase Realtime Database
@@ -398,7 +409,7 @@ class _SignupPageState extends State<SignupPage> {
           // Navigate to dashboard page after signup
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => DashboardPage()),
+            MaterialPageRoute(builder: (context) => VerifyMobile()),
           );
         } else {
           showToast('Google Sign-in failed');
@@ -564,18 +575,24 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                RichText(
-                  text: TextSpan(
-                    text: 'Continue With ',
-                    style: TextStyle(color: Colors.black),
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: 'SMS',
-                        style: TextStyle(color: Colors.green),
+                const SizedBox(height: 10),Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text("continue with"),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => PhoneAuthScreen()),
+                        );
+                      },
+                      child: const Text(
+                        "SMS",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 236, 143, 2)),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -605,3 +622,6 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 }
+
+
+

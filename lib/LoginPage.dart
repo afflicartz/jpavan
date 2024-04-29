@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project/DashboardPage.dart';
-import 'package:project/SignupPage.dart';
+import 'package:project/MyEarningsPage.dart';
+import 'package:project/VerifyMobile.dart';
+import 'package:provider/provider.dart';
+import 'ForgetPasswordPage.dart';
+import 'SignupPage.dart';
+import 'UserState.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key});
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController emailController = TextEditingController();
-    TextEditingController passwordController = TextEditingController();
-
     void signInWithEmailAndPassword() async {
       try {
-        UserCredential userCredential =
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text,
         );
+        String UniqueKey = userCredential.user!.uid;
 
-        // If login is successful, navigate to the homepage
+        // Update userId using UserState
+        Provider.of<UserState>(context, listen: false).setUniqueKey(UniqueKey);
+
+
+        // If login is successful, navigate to the VerifyMobile page
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => DashboardPage()),
@@ -75,7 +82,7 @@ class LoginPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(18),
                           borderSide: BorderSide.none,
                         ),
-                        fillColor: Colors.white.withOpacity(0.1),
+                        fillColor: Colors.green.withOpacity(0.1),
                         filled: true,
                         prefixIcon: const Icon(Icons.email),
                       ),
@@ -89,7 +96,7 @@ class LoginPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(18),
                           borderSide: BorderSide.none,
                         ),
-                        fillColor: Colors.white.withOpacity(0.1),
+                        fillColor: Colors.green.withOpacity(0.1),
                         filled: true,
                         prefixIcon: const Icon(Icons.password),
                       ),
@@ -115,22 +122,40 @@ class LoginPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                Row(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    const Text("Don't have an account?"),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Text("Don't have an account?"),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => SignupPage()),
+                            );
+                          },
+                          child: const Text(
+                            "Sign Up",
+                            style: TextStyle(color: Colors.orange),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => SignupPage(title: 'hello world'),
+                            builder: (context) => ForgetPasswordPage(),
                           ),
                         );
                       },
                       child: const Text(
-                        "SignUp",
-                        style: TextStyle(color: Color.fromARGB(255, 236, 143, 2)),
+                        "Forgot Password",
+                        style: TextStyle(color: Colors.blue),
                       ),
                     ),
                   ],

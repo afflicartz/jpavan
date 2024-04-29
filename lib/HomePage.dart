@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project/CardDetailsPage.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class HomePage extends StatelessWidget {
@@ -13,39 +14,96 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 20),
               CarouselSlider(
                 items: [
-                  buildCarouselItem('Logo.png'),
-                  // buildCarouselItem('CarouselImage2.png'),
-                  // buildCarouselItem('CarouselImage3.png'),
+                  buildCarouselItem('carousel1.png'),
                 ],
                 options: CarouselOptions(
                   height: 200,
                   aspectRatio: 16 / 9,
                   viewportFraction: 0.8,
                   initialPage: 0,
-                  enableInfiniteScroll: true,
                   autoPlay: false,
                   autoPlayInterval: Duration(seconds: 3),
                   autoPlayAnimationDuration: Duration(milliseconds: 800),
                   pauseAutoPlayOnTouch: true,
                   enlargeCenterPage: true,
-                  scrollDirection: Axis.horizontal,
                 ),
               ),
               SizedBox(height: 10),
               Wrap(
-                alignment: WrapAlignment.center, // Align items in the center
-                spacing: 10, // Space between items
+                alignment: WrapAlignment.center,
+                spacing: 10,
                 children: [
-                  buildCard('Amazon.png'),
-                  buildCard('Flipkart.png'),
-                  buildCard('Meesho.png'),
-                  buildCard('Myntra.png'),
-                  buildCard('Nykaa.png'),
-                  buildCard('AJIO.png'),
-                  buildCard('Mamaearth.png'),
-                  buildCard('Amazon.png'),
-                  buildCard('Amazon.png'),
-                  buildCard('Amazon.png'),
+                  buildCard(
+                      context,
+                      [
+                        'Clothing',
+                        'Electronics',
+                        'Watches',
+                        'Mobile Phones',
+                        'Gadjets'
+                      ],
+                      [
+                        'Amazon_BackGround_Crop.png',
+                        'Amazon_BackGround_Electronics.png'
+                      ],
+                      [3, 5, 7, 2, 4],
+                      'https://www.amazon.com',
+                      5),
+                  buildCard(
+                      context,
+                      [
+                        'Clothing',
+                        'Electronics',
+                        'Watches',
+                        'Mobile Phones',
+                        'Gadjets',
+                        'Dresses'
+                      ],
+                      ['Flipkart_BackGround_Earbuds.png', 'Flipkart.png'],
+                      [2, 6, 4, 7, 8, 4],
+                      'https://www.flipkart.com',
+                      6),
+                  buildCard(
+                      context,
+                      ['Clothing', 'Electronics', 'Watches', 'Mobile Phones'],
+                      ['Meesho.png', 'Meesho.png'],
+                      [3, 7, 6, 4],
+                      'https://www.meesho.com',
+                      4),
+                  buildCard(
+                      context,
+                      [
+                        'Clothing',
+                        'Electronics',
+                        'Watches',
+                        'Mobile Phones',
+                        'Gadjets'
+                      ],
+                      ['Myntra_BackGround_Clothing.png', 'Myntra.png'],
+                      [4, 7, 8, 3, 5],
+                      'https://www.myntra.com',
+                      5),
+                  buildCard(
+                      context,
+                      ['Clothing', 'Electronics', 'Watches'],
+                      ['Nykaa_BackGround_Lipstick.png', 'Nykaa.png'],
+                      [5, 7, 8],
+                      'https://www.nykaa.com',
+                      3),
+                  buildCard(
+                      context,
+                      ['Clothing', 'Electronics', 'Watches'],
+                      ['AJIO_BackGround_Clothes.png', 'AJIO.png'],
+                      [6, 2, 3],
+                      'https://www.ajio.com',
+                      3),
+                  buildCard(
+                      context,
+                      ['Electronics', 'Watches', 'Mobile Phones'],
+                      ['Mamaearth_BackGround_Cream.png', 'Mamaearth.png'],
+                      [7, 6, 2],
+                      'https://www.mamaearth.com',
+                      3),
                 ],
               ),
               SizedBox(height: 10),
@@ -64,25 +122,42 @@ class HomePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         image: DecorationImage(
           image: AssetImage('assets/images/$imageName'),
-          fit: BoxFit.cover,
+          fit: BoxFit.contain,
         ),
       ),
     );
   }
 
-  Widget buildCard(String imageName) {
-    return Container(
-      margin: EdgeInsets.all(10),
-      child: Card(
-        elevation: 5,
-        child: Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            image: DecorationImage(
-              image: AssetImage('assets/images/$imageName'),
-              fit: BoxFit.contain,
+  Widget buildCard(BuildContext context, List<String> title, List<String> image,
+      List<int> number, String url, int numberOfCards) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CardDetailsPage(
+              cardTitles: title,
+              cardImages: List.generate(numberOfCards, (index) => image[0]),
+              cardNumbers: number,
+              cardUrls: List.generate(numberOfCards, (index) => url),
+              numberOfCards: numberOfCards,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        margin: EdgeInsets.all(10),
+        child: Card(
+          elevation: 5,
+          child: Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              image: DecorationImage(
+                image: AssetImage('assets/images/${image[1]}'),
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         ),

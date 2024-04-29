@@ -1,9 +1,9 @@
-// DashboardPage.dart
 import 'package:flutter/material.dart';
+import 'package:project/AboutUsScreen.dart';
+import 'package:project/ContactUsPage.dart';
+import 'package:project/UserProfile.dart'; // Ensure correct import statement
 import 'HomePage.dart';
-import 'ShopPage.dart'; // Placeholder for ShopPage
-import 'ProfilePage.dart'; // Placeholder for ProfilePage
-// import 'SettingsPage.dart'; // Placeholder for SettingsPage
+import 'MyEarningsPage.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -11,13 +11,21 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  int _currentIndex = 0;
+  int _bottomNavIndex = 0;
+  int _sideDrawerIndex = 0;
 
-  final List<Widget> _pages = [
+  final List<Widget> _bottomNavPages = [
     HomePage(),
-    ShopPage(), // Placeholder for ShopPage
-    ProfilePage(), // Placeholder for ProfilePage
-    // SettingsPage(), // Placeholder for SettingsPage
+    MyEarningsPage(),
+    UserProfile(), // Corrected usage
+  ];
+
+  final List<Widget> _sideDrawerPages = [
+    HomePage(),
+    MyEarningsPage(),
+    UserProfile(), // Corrected usage
+    AboutUsScreen(),
+    ContactUsPage(),
   ];
 
   @override
@@ -26,13 +34,6 @@ class _DashboardPageState extends State<DashboardPage> {
       appBar: AppBar(
         title: Row(
           children: [
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                // Handle sidebar navigation
-              },
-            ),
-            SizedBox(width: 10),
             Image.asset('assets/images/Logo.png', height: 60),
             SizedBox(width: 10),
             Expanded(
@@ -46,26 +47,110 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
       ),
-      body: _pages[_currentIndex],
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                _navigateToSideDrawerPage(0);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.attach_money_rounded),
+              title: Text('Money'),
+              onTap: () {
+                _navigateToSideDrawerPage(1);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text('Profile'),
+              onTap: () {
+                _navigateToSideDrawerPage(2);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text('About us'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AboutUsScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.contact_page_outlined),
+              title: Text('Contact Us'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ContactUsPage()),
+                );
+              },
+            ),
+
+          ],
+        ),
+      ),
+      body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.attach_money_rounded), label: 'Money'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: 'Earnings'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          // BottomNavigationBarItem(icon: Icon(Icons.shop), label: 'Shop'),
         ],
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.white,
         unselectedLabelStyle: TextStyle(color: Colors.white),
-        currentIndex: _currentIndex,
+        currentIndex: _bottomNavIndex,
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          _navigateToBottomNavBarPage(index);
         },
       ),
     );
+  }
+
+  Widget _buildBody() {
+    if (_bottomNavIndex >= 0 && _bottomNavIndex < _bottomNavPages.length) {
+      return _bottomNavPages[_bottomNavIndex];
+    } else {
+      return Center(
+        child: Text('Invalid Page Index $_bottomNavIndex'),
+      );
+    }
+  }
+
+  void _navigateToBottomNavBarPage(int index) {
+    setState(() {
+      if (index >= 0 && index < _bottomNavPages.length) {
+        _bottomNavIndex = index;
+      }
+    });
+  }
+
+  void _navigateToSideDrawerPage(int index) {
+    setState(() {
+      if (index >= 0 && index < _sideDrawerPages.length) {
+        _sideDrawerIndex = index;
+      }
+    });
+    Navigator.of(context).pop(); // Close the drawer
   }
 }

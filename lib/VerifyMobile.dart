@@ -1,37 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:project/DashboardPage.dart';
+import 'package:provider/provider.dart';
+import 'UserState.dart';
 
 class VerifyMobile extends StatelessWidget {
   final TextEditingController _mobileController = TextEditingController();
   String? selectedState;
   String? selectedCollege;
 
-  Future<void> _submitForm(BuildContext context) async {
+  VerifyMobile({Key? key}) : super(key: key);
+
+  Future<void> _submitForm(BuildContext context, String userId) async {
     final mobile = _mobileController.text;
     final state = selectedState;
     final college = selectedCollege;
 
     if (mobile.isNotEmpty && state != null && college != null) {
       try {
-        // Store user data in Firebase Realtime Database
-        await FirebaseDatabase.instance.reference().child('users').push().set({
+        // Store user data in Firebase Realtime Database using the userId
+        DatabaseReference database =
+        FirebaseDatabase.instance.ref().child('users').child(userId); // Reference to user's data
+        await database.update({
           'mobile': mobile,
           'state': state,
           'college': college,
         });
 
+        // Navigate to dashboard page after signup
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+        );
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Data stored successfully!'),
+            content: Text('Data updated successfully!'),
           ),
         );
       } catch (e) {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to store data: $e'),
+            content: Text('Failed to update data: $e'),
           ),
         );
       }
@@ -47,6 +59,9 @@ class VerifyMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Access userId from the UserState using Provider
+    String userId = Provider.of<UserState>(context).userId;
+
     List<String> colleges = [
       "RGUKT BASAR",
       "RGUKT NUZVID",
@@ -145,7 +160,7 @@ class VerifyMobile extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.only(top: 3, left: 3),
                   child: ElevatedButton(
-                    onPressed: () => _submitForm(context),
+                    onPressed: () => _submitForm(context, userId),
                     child: const Text(
                       "Submit",
                       style: TextStyle(
